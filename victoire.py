@@ -1,8 +1,18 @@
 import googlemaps
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 
-# --- INSERER VOTRE CLE API ---
-gmaps = googlemaps.Client(key="AIzaSyDFNjE5G_S4i0XHlh3fLUIarAv7LToyXOk")
+# Charger les variables d'environnement
+load_dotenv()
+
+# --- RÉCUPÉRER LA CLÉ DEPUIS .env ---
+api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+if not api_key:
+    print("❌ Erreur : GOOGLE_MAPS_API_KEY non trouvée dans .env")
+    exit()
+
+gmaps = googlemaps.Client(key=api_key)
 
 # Coordonnées GPS (approximatives) des arrêts
 points = {
@@ -14,7 +24,7 @@ points = {
     "gare_centrale": "-4.312100,15.287900"
 }
 
-# Appel à l’API Directions
+# Appel à l'API Directions
 route = gmaps.directions(
     origin=points["victoire"],
     destination=points["gare_centrale"],
@@ -27,5 +37,5 @@ route = gmaps.directions(
     mode="driving"
 )
 
-print("Trajet récupéré avec succès !")
+print("✔ Trajet récupéré avec succès !")
 print(route[0]['legs'])
