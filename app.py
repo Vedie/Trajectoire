@@ -3,13 +3,11 @@ import googlemaps
 from googlemaps.convert import decode_polyline
 import folium
 from streamlit_folium import st_folium
-import os
-from dotenv import load_dotenv
 import networkx as nx
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Configuration
-load_dotenv()
 st.set_page_config(page_title="Trajectoire Kinshasa", layout="wide", initial_sidebar_state="expanded")
 
 # Titre
@@ -17,17 +15,22 @@ st.title("🗺️ Trajet Optimal : Rond Point Victoire → Gare Centrale")
 st.markdown("Projet L4 Data Science - Graphe d'optimisation d'itinéraire")
 
 # ====== SIDEBAR ======
-st.sidebar.header("📋 Informations")
-st.sidebar.write("**Équipe :**")
+st.sidebar.header("📋 Informations du Projet")
+
+st.sidebar.write("### 🎓 Université")
+st.sidebar.write("Université Protestante au Congo (UPC)")
+st.sidebar.write("Faculté des Sciences de l’Information")
+
+st.sidebar.write("### 👥 Équipe du Projet (L4 Data Science)")
 st.sidebar.write("- Nkura Kikakala Winner")
 st.sidebar.write("- Mbala Lepu Djessy")
 st.sidebar.write("- Wasso Kisembe Victorina")
 
+st.sidebar.write("### 📘 Promotion")
+st.sidebar.write("Licence 4 — Data Science")
+
 # ====== RÉCUPÉRER CLÉ API ======
-api_key = os.getenv("GOOGLE_MAPS_API_KEY")
-if not api_key:
-    st.error("❌ Clé API Google Maps non configurée")
-    st.stop()
+api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
 
 gmaps = googlemaps.Client(key=api_key)
 
@@ -54,9 +57,9 @@ try:
         ],
         mode="driving"
     )
-    
+
     st.success("✔ Trajet récupéré avec succès !")
-    
+
 except Exception as e:
     st.error(f"❌ Erreur : {e}")
     st.stop()
@@ -122,8 +125,8 @@ G.add_edges_from(edges)
 # Afficher le graphe
 fig, ax = plt.subplots(figsize=(12, 6))
 pos = nx.spring_layout(G, seed=42, k=2)
-nx.draw(G, pos, with_labels=True, node_size=2000, font_size=9, 
-        arrows=True, arrowsize=20, node_color='lightblue', 
+nx.draw(G, pos, with_labels=True, node_size=2000, font_size=9,
+        arrows=True, arrowsize=20, node_color='lightblue',
         edge_color='gray', width=2, ax=ax)
 st.pyplot(fig)
 
@@ -139,7 +142,6 @@ for i, step in enumerate(steps, 1):
 # ====== SECTION 4 : TABLEAU DES ARRÊTS ======
 st.subheader("4️⃣ Liste des Arrêts")
 
-import pandas as pd
 arrets_df = pd.DataFrame({
     "Arrêt": list(points.keys()),
     "Latitude": [float(coord.split(',')[0]) for coord in points.values()],

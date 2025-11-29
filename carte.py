@@ -1,16 +1,10 @@
 import googlemaps
 import folium
 from googlemaps.convert import decode_polyline
-import os
-from dotenv import load_dotenv
+import streamlit as st
 
-load_dotenv()
-
-# --- Récupérer la clé depuis .env ---
-api_key = os.getenv("GOOGLE_MAPS_API_KEY")
-if not api_key:
-    print("❌ Clé API non trouvée dans .env")
-    exit()
+# --- Récupérer la clé API depuis Streamlit Secrets ---
+api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
 
 gmaps = googlemaps.Client(key=api_key)
 
@@ -25,17 +19,21 @@ points = {
 }
 
 # --- Récupérer le trajet via Google Maps Directions API ---
-route = gmaps.directions(
-    origin=points["victoire"],
-    destination=points["gare_centrale"],
-    waypoints=[
-        points["bongolo"],
-        points["mama_yemo"],
-        points["marche_central"],
-        points["bd_30_juin"]
-    ],
-    mode="driving"
-)
+try:
+    route = gmaps.directions(
+        origin=points["victoire"],
+        destination=points["gare_centrale"],
+        waypoints=[
+            points["bongolo"],
+            points["mama_yemo"],
+            points["marche_central"],
+            points["bd_30_juin"]
+        ],
+        mode="driving"
+    )
+except Exception as e:
+    print(f"❌ Erreur API Google Maps : {e}")
+    exit()
 
 # Vérification rapide
 if not route:
